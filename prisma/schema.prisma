@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户
+model User {
+  id           String      @id @default(uuid())
+  username     String      @unique
+  password     String
+  realName     String?     @map("real_name")
+  nickname     String?
+  phone        String?     @unique
+  email        String?     @unique
+  status       Int         @default(1) // 0 锁定 1 正常
+  avatar       String?
+  roles        UserRole[]
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+  deleted      Boolean     @default(false)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  @@map("user")
+}
+
+// 角色
+model Role {
+  id          String     @id @default(uuid())
+  roleName    String     @unique @map("role_name")
+  encoded     String     @unique
+  description String? // 角色描述
+  status      Int        @default(1) // 0 锁定 1 正常
+  sort        Int        @default(1) // 排序字段
+  users       UserRole[]
+  menus       RoleMenu[]
+  deleted     Boolean    @default(false)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@map("role")
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  user      User     @relation(fields: [userId], references: [id])
+  role      Role     @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, roleId])
+  @@map("user_role")
+}
+
+// 菜单
+model Menu {
+  id        String     @id @default(uuid())
+  title     String
+  name      String
+  type      Int        @default(1) // 1 菜单  2 按钮
+  icon      String?
+  route     String
+  component String
+  hidden    Boolean    @default(false) // 是否隐藏
+  status    Int        @default(1) // 0 锁定 1 正常
+  sort      Int?       @default(1) // 排序字段
+  parentId  String?    @map("parent_id")
+  roles     RoleMenu[]
+  deleted   Boolean    @default(false)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("menu")
+}
+
+// 角色菜单
+model RoleMenu {
+  role   Role   @relation(fields: [roleId], references: [id])
+  roleId String @map("role_id")
+
+  menu   Menu   @relation(fields: [menuId], references: [id])
+  menuId String @map("menu_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@id([roleId, menuId])
+  @@unique([roleId, menuId])
+  @@map("role_menu")
+}
+
+// 部门
+model Department {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  parentId    String?  @map("parent_id")
+  status      Int      @default(1) // 0 锁定 1 正常
+  User        User[]
+  deleted     Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("department")
+}
