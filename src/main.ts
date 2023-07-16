@@ -2,13 +2,14 @@
  * @Description: 
  * @Author: FuHang
  * @Date: 2023-07-14 01:08:26
- * @LastEditTime: 2023-07-14 03:35:55
+ * @LastEditTime: 2023-07-15 00:47:48
  * @LastEditors: Please set LastEditors
  * @FilePath: \nest-service\src\main.ts
  */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());

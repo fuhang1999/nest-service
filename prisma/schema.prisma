@@ -112,3 +112,19 @@ model Department {
 
   @@map("department")
 }
+
+// 日志
+model Log {
+  id        String   @id @default(uuid())
+  ip        String?
+  city      String?
+  level     Int      @default(1) // 0 正常 1 
+  message   String
+  client    String? // 客户端
+  model     String? // 设备型号
+  deleted   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("log")
+}
